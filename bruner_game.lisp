@@ -1,8 +1,8 @@
 (defparameter *nodes* '((BRUN404 (You are in a small room filled with functional programmers. See how "I" did not make a joke about room not found.))
                         (BRUN207 (You are in a very large room with multiple LCD displays and two projectors. You see a young man typing away at a keyboard.))
                         (BRUN213 (You see a man wearing glasses staring back at you. There are books about genetic algorithms and AI on his desk.))
-			(BRUN214 (You see a lady studying a book on Scala.))
-			(BRUN206 (You see a young man wearing a shirt that reads - "I love Assembly". You also see a book labeled "Asssembly is Fun".))
+			(BRUN214 (You see a lady studying a book on Scala))
+			(BRUN206 (You see a young man wearing a shirt that reads - "I love Assembly." You also see a book labeled Asssembly is Fun.))
 ))
 (defun describe-location (location nodes)
    (cadr (assoc location nodes)))
@@ -81,7 +81,7 @@
                     (list 'quote x)))
              (cons (car cmd) (mapcar #'quote-it (cdr cmd))))))
 
-(defparameter *allowed-commands* '(look walk pickup inventory))
+(defparameter *allowed-commands* '(look walk pickup inventory + -))
 
 (defun game-eval (sexp)
     (if (member (car sexp) *allowed-commands*)
@@ -102,3 +102,5 @@
 (defun game-print (lst)
     (princ (coerce (tweak-text (coerce (string-trim "() " (prin1-to-string lst)) 'list) t nil) 'string))
     (fresh-line))
+
+(game-repl)
