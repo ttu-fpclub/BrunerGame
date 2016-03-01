@@ -1,3 +1,8 @@
+;;Authors: FPC Member
+;; Project started by Charlie Hicks
+;; Idea a game written in Common Lisp which allows the play to run through Bruner.
+
+
 (defparameter *nodes* '((BRUN404 (You are in a small room filled with functional programmers. See how "I" did not make a joke about room not found.))
                         (BRUN207 (You are in a very large room with multiple LCD displays and two projectors. You see a young man typing away at a keyboard.))
                         (BRUN213 (You see a man wearing glasses staring back at you. There are books about genetic algorithms and AI on his desk.))
@@ -7,7 +12,8 @@
 (defun describe-location (location nodes)
    (cadr (assoc location nodes)))
 
-(defparameter *edges* '((BRUN404 (BRUN206 east portal))
+(defparameter *edges* '((BRUN404 (BRUN206 east portal)
+				 (BRUN404 below light))
                         (BRUN206 (BRUN207 east portal)
 				 (BRUN404 west portal))
                         (BRUN207 (BRUN206 west portal)
@@ -48,14 +54,16 @@
           (describe-paths *location* *edges*)
           (describe-objects *location* *objects* *object-locations*)))
 
-(defun walk (direction)
+(defun walk ( &rest phrase)
+  (let ((direction (car (reverse phrase))))
+    
   (labels ((correct-way (edge)
              (eq (cadr edge) direction)))
     (let ((next (find-if #'correct-way (cdr (assoc *location* *edges*)))))
       (if next 
           (progn (setf *location* (car next)) 
                  (look))
-          '(you cannot go that way.)))))
+          '(you cannot go that way.))))))
 
 (defun pickup (object)
   (cond ((member object (objects-at *location* *objects* *object-locations*))
@@ -86,7 +94,7 @@
 (defun game-eval (sexp)
     (if (member (car sexp) *allowed-commands*)
         (eval sexp)
-        '(i do not know that command.)))
+        '(I do not know that command.)))
 
 (defun tweak-text (lst caps lit)
   (when lst
@@ -104,3 +112,4 @@
     (fresh-line))
 
 (game-repl)
+
