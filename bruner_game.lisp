@@ -3,11 +3,11 @@
 ;; Idea a game written in Common Lisp which allows the play to run through Bruner.
 
 
-(defparameter *nodes* '((BRUN404 (You are in a small room filled with functional programmers. See how "I" did not make a joke about room not found.))
-                        (BRUN207 (You are in a very large room with multiple LCD displays and two projectors. You see a young man typing away at a keyboard.))
-                        (BRUN213 (You see a man wearing glasses staring back at you. There are books about genetic algorithms and AI on his desk.))
-			(BRUN214 (You see a lady studying a book on Scala))
-			(BRUN206 (You see a young man wearing a shirt that reads - "I love Assembly." You also see a book labeled Asssembly is Fun.))
+(defparameter *nodes* '((BRUN404 "You are in a small room filled with functional programmers. See how \"I\" did not make a joke about room not found.")
+                        (BRUN207 "You are in a very large room with multiple LCD displays and two projectors. You see a young man typing away at a keyboard.")
+                        (BRUN213 "You see a man wearing glasses staring back at you. There are books about genetic algorithms and AI on his desk.")
+			(BRUN214 "You see a lady studying a book on Scala")
+			(BRUN206 "You see a young man wearing a shirt that reads - \"I love Assembly.\" You also see a book labeled Asssembly is Fun.")
 ))
 (defun describe-location (location nodes)
    (cadr (assoc location nodes)))
@@ -24,10 +24,11 @@
 ))
 
 (defun describe-path (edge)
-  `(there is a ,(caddr edge) going ,(cadr edge) from here.))
+  (format nil "There is a ~(~A~) going ~(~A~) from here."
+          (caddr edge) (cadr edge)))
 
 (defun describe-paths (location edges)
-  (apply #'append (mapcar #'describe-path (cdr (assoc location edges)))))
+  (format nil "~{~A~^ ~}" (mapcar #'describe-path (cdr (assoc location edges)))))
 
 (defparameter *objects* '(keyboard assembly-book scala-book genetic-algorithms-book AI-book))
 
@@ -44,13 +45,15 @@
 
 (defun describe-objects (loc objs obj-loc)
    (labels ((describe-obj (obj)
-                `(you see a ,obj on the floor.)))
-      (apply #'append (mapcar #'describe-obj (objects-at loc objs obj-loc)))))
+                (format nil "You see a ~(~A~) on the floor." obj)))
+      (format nil "~{~A~^ ~}"
+              (mapcar #'describe-obj (objects-at loc objs obj-loc)))))
 
 (defparameter *location* 'BRUN404)
 
 (defun look ()
-  (append (describe-location *location* *nodes*)
+  (format nil "~A ~A ~A"
+          (describe-location *location* *nodes*)
           (describe-paths *location* *edges*)
           (describe-objects *location* *objects* *object-locations*)))
 
@@ -68,11 +71,11 @@
 (defun pickup (object)
   (cond ((member object (objects-at *location* *objects* *object-locations*))
          (push (list object 'body) *object-locations*)
-         `(you are now carrying the ,object))
-	  (t '(you cannot get that.))))
+         (format nil "You are now carrying the ~(~A~)" object))
+        (t "You cannot get that.")))
 
 (defun inventory ()
-  (cons 'items- (objects-at 'body *objects* *object-locations*)))
+  (format nil "Items- ~{~A~^ ~}" (objects-at 'body *objects* *object-locations*)))
 
 (defun have (object) 
     (member object (cdr (inventory))))
@@ -94,7 +97,7 @@
 (defun game-eval (sexp)
     (if (member (car sexp) *allowed-commands*)
         (eval sexp)
-        '(I do not know that command.)))
+        "I do not know that command."))
 
 (defun tweak-text (lst caps lit)
   (when lst
@@ -108,7 +111,7 @@
             (t (cons (char-downcase item) (tweak-text rest nil nil)))))))
 
 (defun game-print (lst)
-    (princ (coerce (tweak-text (coerce (string-trim "() " (prin1-to-string lst)) 'list) t nil) 'string))
+    (princ lst)
     (fresh-line))
 
 (game-repl)
